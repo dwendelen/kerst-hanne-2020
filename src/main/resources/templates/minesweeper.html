@@ -1,0 +1,369 @@
+<html>
+<head>
+    <title></title>
+    <style>
+        body {
+            text-align: center;
+        }
+        div.field > div > div {
+            height: 88px;
+            width: 88px;
+            float: left;
+            border-style: solid;
+            border-width: 1px;
+            text-align: center;
+            display: inline-block;
+        }
+        div.field > div > div > span{
+            font-size: 72px;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        div.field > div > div.mine {
+            background-color: red;
+        }
+        div.field > div > div.mark {
+            background-color: green;
+        }
+
+        div.field  > div.row {
+            clear: both;
+            display: inline-block;
+        }
+
+        div.field > div > div.button {
+            display: block;
+            background-color: blue;
+        }
+        div.field {
+            width: 900px;
+            border-width: 3px;
+            border-style: solid;
+            display: inline-block;
+            margin-top: 100px;
+        }
+
+        span.message {
+            font-size: 64px;
+        }
+        span.message.won {
+            background-color: green;
+        }
+        span.message.lost {
+            background-color: red;
+        }
+        span.message.playing {
+            display: none;
+        }
+    </style>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+</head>
+<body>
+<div class="field">
+
+</div>
+<script type="application/javascript">
+    function main() {
+        let game = Minesweeper(10, 0.1, {onWon: () => {}, onLost: () => {}});
+        let gridDiv = $("div.field");
+        for(let row of game.field) {
+            let rowDiv = $("<div class='row'>");
+            gridDiv.append(rowDiv);
+            for(let cell of row) {
+                let span = $("<span>"+cell.getValue()+"</span>");
+                let cellDiv = $("<div class='" + cell.getClass() +"'>");
+                cellDiv.append(span);
+                rowDiv.append(cellDiv);
+                cellDiv.click(e => {
+                    game.click(cell.x, cell.y);
+                });
+                cell.callback = () => {
+                    cellDiv.attr("class", cell.getClass());
+                    span.text(cell.getValue());
+                }
+            }
+        }
+    }
+
+    /*
+        gameCallback: {
+            onWin()
+            onLose()
+        }
+
+     */
+    function Minesweeper(size, chance, gameCallback) {
+        let gameStateFactory = new GameStateFactory();
+        let cellFactory = new CellFactory(gameStateFactory);
+
+        return new Game(gameStateFactory, cellFactory, size, chance, gameCallback);
+    }
+    function Game(gameStateFactory, cellFactory, size, chance, callback) {
+        this.gameStateFactory = gameStateFactory;
+        this.cellFactory = cellFactory;
+        this.callback = callback;
+
+        this.state = gameStateFactory.playing(this);
+        this.constructField(size, chance);
+    }
+    Game.prototype.constructField = function (size, chance) {
+        this.field = [];
+        for (let y = 0; y < size; y++) {
+            this.field[y] = [];
+            for (let x = 0; x < size; x++) {
+                this.field[y][x] = this.cellFactory.create(this, x, y, size, chance);
+            }
+        }
+
+        for (let y = 0; y < size; y++) {
+            for (let x = 0; x < size; x++) {
+                this.field[y][x].incrementMineCountOfBuddies();
+            }
+        }
+    };
+    Game.prototype.click = function (x, y) {
+        this.state.ifCanClick(() => {
+            this.field[y][x].click(() => this.lost());
+            this.calculateWon();
+        });
+    };
+    Game.prototype.calculateWon = function () {
+        /*let oldState = this.state;
+        this.state = this.gameStateFactory.won();
+        this.field.forEach(function (row) {
+            row.forEach(function (cell) {
+                cell.resetOldStateIfNotWon(oldState);
+            });
+        });*/
+    };
+    Game.prototype.lost = function() {
+        this.state = this.gameStateFactory.lost();
+        this.callback.onLost();
+    };
+
+    function GameStateFactory() {}
+    GameStateFactory.prototype.playing = function(game) {
+        return new Playing(game);
+    };
+    GameStateFactory.prototype.won = function() {
+        return new Won();
+    };
+    GameStateFactory.prototype.lost = function() {
+        return new Lost();
+    };
+
+    function Playing(game) {
+        this.game = game;
+        this.class = 'playing';
+        this.text = '';
+    }
+    Playing.prototype.ifCanClick = function (onTrue) {
+        onTrue();
+    };
+
+    function Won() {
+        this.class = 'won';
+        this.text = 'You have won!';
+    }
+    Won.prototype.ifCanClick = function (onTrue) {
+    };
+
+    function Lost() {
+        this.class = 'lost';
+        this.text = 'You died!';
+    }
+    Lost.prototype.ifCanClick = function (onTrue) {
+    };
+
+    function CellFactory() {
+        this.cellStateFactory = new CellStateFactory();
+        this.cellTypeFactory = new CellTypeFactory();
+
+        this.randomiser = {
+            random: Math.random
+        };
+    }
+    CellFactory.prototype.create = function(game, x, y, size, chance) {
+        return new Cell(game, x, y , size, chance, this.cellStateFactory, this.cellTypeFactory, this.randomiser);
+    };
+
+    function Cell(game, x, y, size, chance, cellStateFactory, cellTypeFactory, randomiser) {
+        this.x = x;
+        this.y = y;
+        this.callback = () => {};
+
+        if (randomiser.random() < chance) {
+            this.type = cellTypeFactory.mine(this);
+        } else {
+            this.type = cellTypeFactory.empty(this);
+        }
+
+        this.state = cellStateFactory.undiscovered(this);
+
+        this.addBuddies(game, size);
+    }
+    Cell.prototype.addBuddies = function (game, size) {
+        this.buddies = [];
+        this.addBuddy(this.x - 1, this.y - 1, game, size);
+        this.addBuddy(this.x    , this.y - 1, game, size);
+        this.addBuddy(this.x + 1, this.y - 1, game, size);
+        this.addBuddy(this.x - 1, this.y    , game, size);
+
+    };
+    Cell.prototype.addBuddy = function (x, y, game, size) {
+        if (!this.isValid(x, y, size)) {
+            return;
+        }
+        let other = game.field[y][x];
+        this.buddies.push(other);
+        other.buddies.push(this);
+    };
+    Cell.prototype.isValid = function (x, y, size) {
+        return y >= 0 && x >= 0 && x < size;
+    };
+
+    Cell.prototype.incrementMineCountOfBuddies = function () {
+        this.type.incrementMineCountOfBuddies();
+    };
+    Cell.prototype.incrementMineCount = function () {
+        this.type.incrementMineCount();
+    };
+    Cell.prototype.getClass = function () {
+        return this.state.getClass();
+    };
+    Cell.prototype.getTypeClass = function() {
+        return this.type.getClass();
+    };
+    Cell.prototype.getValue = function () {
+        return this.state.getValue();
+    };
+    Cell.prototype.getTypeValue = function() {
+        return this.type.getValue();
+    };
+    Cell.prototype.click = function (onLost) {
+        this.state.click(() => {
+            this.uncoverType(onLost);
+            this.callback();
+        });
+    };
+    Cell.prototype.uncoverType = function (onLost) {
+        this.type.discover(onLost, () => {
+            this.clickOnBuddies(onLost);
+        });
+    };
+    Cell.prototype.clickOnBuddies = function (onLost) {
+        this.buddies.forEach(function (e) {
+            e.click(onLost);
+        });
+    };
+
+
+    function CellStateFactory() {}
+    CellStateFactory.prototype.undiscovered = function(cell) {
+        return new Undiscovered(cell, this);
+    };
+    CellStateFactory.prototype.discovered = function(cell) {
+        return new Discovered(cell);
+    };
+
+    function Undiscovered(cell, cellStateFactory) {
+        this.cellStateFactory = cellStateFactory;
+        this.cell = cell;
+    }
+    Undiscovered.prototype.getValue = function () {
+        return '';
+    };
+    Undiscovered.prototype.getClass = function () {
+        return 'button';
+    };
+    Undiscovered.prototype.click = function (ifUncovered) {
+        this.cell.state = this.cellStateFactory.discovered(this.cell);
+        ifUncovered();
+    };
+
+    function Discovered(cell) {
+        this.cell = cell;
+    }
+    Discovered.prototype.getValue = function () {
+        return this.cell.getTypeValue();
+    };
+    Discovered.prototype.getClass = function () {
+        return this.cell.getTypeClass();
+    };
+    Discovered.prototype.click = function (ifUncovered) {
+    };
+
+    function CellTypeFactory() {
+    }
+    CellTypeFactory.prototype.empty = function(cell) {
+        return new Empty(cell, this);
+    };
+    CellTypeFactory.prototype.neighbour = function(cell) {
+        return new Neighbour(cell);
+    };
+    CellTypeFactory.prototype.mine = function(cell) {
+        return new Mine(cell);
+    };
+
+    function Empty(cell, cellTypeFactory) {
+        this.cell = cell;
+        this.cellTypeFactory = cellTypeFactory;
+    }
+    Empty.prototype.incrementMineCountOfBuddies = function () {
+    };
+    Empty.prototype.incrementMineCount = function () {
+        this.cell.type = this.cellTypeFactory.neighbour(this.cell);
+    };
+    Empty.prototype.getValue = function () {
+        return '';
+    };
+    Empty.prototype.getClass = function () {
+        return 'value';
+    };
+    Empty.prototype.discover = function (onLost, onEmpty) {
+        onEmpty();
+    };
+
+    function Neighbour(cell) {
+        this.cell = cell;
+        this.nbOfMines = 1;
+    }
+    Neighbour.prototype.incrementMineCountOfBuddies = function () {
+    };
+    Neighbour.prototype.incrementMineCount = function () {
+        this.nbOfMines++;
+    };
+    Neighbour.prototype.getValue = function () {
+        return this.nbOfMines.toString();
+    };
+    Neighbour.prototype.getClass = function () {
+        return 'value';
+    };
+    Neighbour.prototype.discover = function (onLost, onEmpty) {
+    };
+
+    function Mine(cell) {
+        this.cell = cell;
+    }
+    Mine.prototype.incrementMineCountOfBuddies = function () {
+        this.cell.buddies.forEach(function (e) {
+            e.incrementMineCount();
+        });
+    };
+    Mine.prototype.incrementMineCount = function () {
+    };
+    Mine.prototype.getValue = function () {
+        return '';
+    };
+    Mine.prototype.getClass = function () {
+        return 'mine';
+    };
+    Mine.prototype.discover = function (onLost, onEmpty) {
+        onLost();
+    };
+
+    main();
+</script>
+</body>
+</html>

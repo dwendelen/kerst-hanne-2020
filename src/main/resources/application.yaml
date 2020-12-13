@@ -1,0 +1,10 @@
+server:
+  error.whitelabel.enabled: false
+
+spring:
+  datasource:
+    url: "jdbc:hsqldb:file:data/db"
+
+hanne:
+  release: 2020-12-12T13:10:00Z
+  date-of-birth: 1996-03-10
