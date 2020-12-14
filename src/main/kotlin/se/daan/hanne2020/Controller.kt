@@ -39,7 +39,46 @@ class Controller(
     }
 
     @GetMapping("/location1")
-    fun location1() = "location1"
+    fun location1(): String {
+        checkRelease()
+        checkPage("location1")
+        return "location1"
+    }
+
+    @GetMapping("/location2")
+    fun location2(): String {
+        checkRelease()
+        checkPage("location2")
+        return "location2"
+    }
+
+    @GetMapping("/location3")
+    fun location3(): String {
+        checkRelease()
+        checkPage("location3")
+        return "location3"
+    }
+
+    @GetMapping("/location4")
+    fun location4(): String {
+        checkRelease()
+        checkPage("location4")
+        return "location4"
+    }
+
+    @GetMapping("/antgame")
+    fun antgame(): String {
+        checkRelease()
+        checkPage("antgame")
+        return "antgame"
+    }
+
+    @GetMapping("/end")
+    fun end(): String {
+        checkRelease()
+        checkPage("end")
+        return "end"
+    }
 
     @GetMapping("/redeem")
     fun redeem(@RequestParam("code", required = false) code: String?): Any {
