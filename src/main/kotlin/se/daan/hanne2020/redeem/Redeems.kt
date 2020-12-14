@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component
 import se.daan.hanne2020.page.Pages
 
 @Component
-class Redeem(
+class Redeems(
     private val repo: RedeemCodeRepository,
     private val page: Pages
 ) {

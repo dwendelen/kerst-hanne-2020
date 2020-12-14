@@ -5,38 +5,68 @@ import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.server.ResponseStatusException
+import org.springframework.web.servlet.view.RedirectView
 import se.daan.hanne2020.page.Pages
+import se.daan.hanne2020.redeem.Redeems
 import java.time.Clock
 
 @Controller
 class Controller(
     private val clock: Clock,
     private val properties: Properties,
-    private val pages: Pages
+    private val pages: Pages,
+    private val redeems: Redeems
 ) {
     @GetMapping
-    fun index(@RequestParam("dob", required = false) dateOfBirth: String?): String {
+    fun index(@RequestParam("dob", required = false) dateOfBirth: String?): Any {
         checkRelease()
         return if(dateOfBirth != null && dateOfBirth == properties.dateOfBirth) {
-            pages.getCurrentPage().template
+            RedirectView(pages.getCurrentPage().id)
         } else {
             "index"
         }
-
     }
 
+    @GetMapping("/minesweeper")
+    fun minesweeper(@RequestParam("code", required = false) code: String?): Any {
+        checkRelease()
+        checkPage("minesweeper")
+        return if(code == null || code != "boom") {
+            "minesweeper"
+        } else {
+            unlockAndRedirect("location1")
+        }
+    }
+
+    @GetMapping("/location1")
+    fun location1() = "location1"
+
     @GetMapping("/redeem")
-    fun redeem(@RequestParam("code", required = false) code: String?): String {
+    fun redeem(@RequestParam("code", required = false) code: String?): Any {
         checkRelease()
         if(code == null) {
             throw ResponseStatusException(HttpStatus.NOT_FOUND)
         }
-        return "test"
+        val redeemedPageId = redeems.redeem(code) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
+
+        return RedirectView(redeemedPageId)
     }
+
 
     private fun checkRelease() {
         if(clock.instant().isBefore(properties.release)) {
             throw ResponseStatusException(HttpStatus.NOT_FOUND)
         }
+    }
+
+    private fun checkPage(pageId: String) {
+        if (!pages.isUnlocked(pageId)) {
+            throw ResponseStatusException(HttpStatus.NOT_FOUND)
+        }
+    }
+
+    private fun unlockAndRedirect(pageId: String): RedirectView {
+        pages.unlock(pageId)
+        return RedirectView(pageId)
     }
 }

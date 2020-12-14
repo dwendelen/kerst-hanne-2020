@@ -45,7 +45,6 @@ class Pages(
 data class Page(
     @Id
     val id: String,
-    val template: String,
     val unlocked: Boolean,
     val unlockedOn: Instant?,
     val order: Int
