@@ -96,8 +96,8 @@
 
     /*
         gameCallback: {
-            onWin()
-            onLose()
+            onWon()
+            onLost()
         }
 
      */
@@ -137,17 +137,22 @@
         });
     };
     Game.prototype.calculateWon = function () {
-        /*let oldState = this.state;
-        this.state = this.gameStateFactory.won();
+        let doNothing = () => {};
+        let action = () => this.won();
         this.field.forEach(function (row) {
             row.forEach(function (cell) {
-                cell.resetOldStateIfNotWon(oldState);
+                action = cell.selectWinAction(action, doNothing);
             });
-        });*/
+        });
+        action();
     };
     Game.prototype.lost = function() {
         this.state = this.gameStateFactory.lost();
         this.callback.onLost();
+    };
+    Game.prototype.won = function() {
+        this.state = this.gameStateFactory.won();
+        this.callback.onWon();
     };
 
     function GameStateFactory() {}
@@ -259,6 +264,12 @@
             e.click(onLost);
         });
     };
+    Cell.prototype.selectWinAction = function(bestAction, doNothing) {
+        return this.state.onType(
+            this.type.onType(doNothing, doNothing, bestAction),
+            this.type.onType(bestAction, bestAction, doNothing)
+        );
+    };
 
 
     function CellStateFactory() {}
@@ -283,6 +294,9 @@
         this.cell.state = this.cellStateFactory.discovered(this.cell);
         ifUncovered();
     };
+    Undiscovered.prototype.onType = function (onUndiscovered, onDiscovered) {
+        return onUndiscovered;
+    };
 
     function Discovered(cell) {
         this.cell = cell;
@@ -294,6 +308,9 @@
         return this.cell.getTypeClass();
     };
     Discovered.prototype.click = function (ifUncovered) {
+    };
+    Discovered.prototype.onType = function (onUndiscovered, onDiscovered) {
+        return onDiscovered;
     };
 
     function CellTypeFactory() {
@@ -326,6 +343,9 @@
     Empty.prototype.discover = function (onLost, onEmpty) {
         onEmpty();
     };
+    Empty.prototype.onType = function (onEmpty, onNeighbour, onMine) {
+        return onEmpty;
+    };
 
     function Neighbour(cell) {
         this.cell = cell;
@@ -343,6 +363,9 @@
         return 'value';
     };
     Neighbour.prototype.discover = function (onLost, onEmpty) {
+    };
+    Neighbour.prototype.onType = function (onEmpty, onNeighbour, onMine) {
+        return onNeighbour;
     };
 
     function Mine(cell) {
@@ -363,6 +386,9 @@
     };
     Mine.prototype.discover = function (onLost, onEmpty) {
         onLost();
+    };
+    Mine.prototype.onType = function (onEmpty, onNeighbour, onMine) {
+        return onMine;
     };
 
     main();
