@@ -4,7 +4,14 @@ server:
 spring:
   datasource:
     url: "jdbc:hsqldb:file:data/db"
+  web:
+    resources:
+      cache:
+        cachecontrol:
+          must-revalidate: true
+          cache-private: false
+          max-age: 31536000
 
 hanne:
   release: 2020-12-12T13:10:00Z
-  date-of-birth: 1996-03-10
+  date-of-birth: 1996-03-18
