@@ -25,3 +25,11 @@ spec:
         ports:
         - name: http
           containerPort: 8080
+        volumeMounts:
+          - mountPath: "/data"
+            name: "data"
+      volumes:
+        - name: data
+          hostPath:
+            path: "/var/hanne-kerst-2020-tst"
+            type: "DirectoryOrCreate"
