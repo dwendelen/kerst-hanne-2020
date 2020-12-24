@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kerst-hanne-2020-tst
+  labels:
+    app: kerst-hanne-2020-tst
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kerst-hanne-2020-tst
+  template:
+    metadata:
+      labels:
+        app: kerst-hanne-2020-tst
+    spec:
+      containers:
+      - name: kerst-hanne-2020
+        image: "localhost:32000/kerst-hanne-2020:b9b95ae1"
+        env:
+        - name: "SERVER_SERVLET_CONTEXT_PATH"
+          value: "/hanne-tst"
+        ports:
+        - name: http
+          containerPort: 8080

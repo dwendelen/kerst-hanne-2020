@@ -19,7 +19,7 @@ spec:
         image: "localhost:32000/kerst-hanne-2020:b9b95ae1"
         env:
         - name: "SERVER_SERVLET_CONTEXT_PATH"
-          value: "/daan"
+          value: "/hanne"
         ports:
         - name: http
           containerPort: 8080
