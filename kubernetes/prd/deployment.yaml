@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: kerst-hanne-2020
-        image: "localhost:32000/kerst-hanne-2020:76e27001"
+        image: "localhost:32000/kerst-hanne-2020:37d3d3b5"
         env:
         - name: "SERVER_SERVLET_CONTEXT_PATH"
           value: "/hanne"
