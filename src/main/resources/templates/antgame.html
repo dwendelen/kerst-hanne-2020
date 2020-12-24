@@ -3,14 +3,20 @@
     <style>
         div.title {
             margin-top: 100px;
+            margin-bottom: 100px;
             text-align: center;
             font-size: 64pt;
+        }
+        div.title2 {
+            margin-top: 150px;
+            text-align: center;
+            font-size: 32pt;
         }
 
         div.explanation {
             margin-left: 50px;
             margin-right: 50px;
-            margin-top: 100px;
+            margin-top: 50px;
             font-size: 16pt;
         }
 
@@ -21,11 +27,25 @@
         }
 
         span.code {
+            white-space: nowrap;
             font-family: monospace;
         }
 
         ol li {
             font-family: monospace;
+        }
+
+        img {
+            margin-top: 50px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        img.startpunt {
+            width: 800px;
+        }
+        div.end {
+            height: 200px;
         }
     </style>
     <title></title>
@@ -37,6 +57,9 @@
     <p>Welkom bij het mierenspel. De mier start bij het startpunt en
         loopt naar het laatste pakketje. De mier kan over de vloer,
         op de muren, op het platfond en achter obstakels lopen.</p>
+</div>
+<div class="title2">Coordinaten</div>
+<div class="explanation">
     <p>De mier loopt van punt tot punt. De weg tussen de punten worden
         beschreven door een set van x, y en z-coordinaten. Enkele voorbeelden:</p>
     <ul>
@@ -48,19 +71,23 @@
         <li><span class="code">(x=10,y=10)</span>: schuin. 10cm volgens de x-as, 10cm volgens de y-as</li>
         <li><span class="code">(x=10,z=10)</span>: schuin omhoog</li>
     </ul>
+    <img alt="coordinaten" src="coordinaten.png">
+</div>
+<div class="title2">Hoeken en deuren</div>
+<div class="explanation">
     <p>Af en toe bevindt een punt zich in een hoek. Bijvoorbeeld tussen de vloer en een muur.
         Wanneer een punt zich in een hoek bevind, staat er <span class="code">hoek</span>
         achter de coordinaten. Bijvoorbeeld <span class="code">(x=20) hoek</span> betekent dat de mier 20cm
         volgens de x-as loopt, en dan in een hoek eindigt.</p>
     <p>Soms bevindt een punt zich in een deuropening. In dit geval staat er
         <span class="code">deur</span> achter de coordinaten. Bijvoorbeeld <span class="code">(x=20) deur</span>.
-        Het punt bevind zich altijd in het midden van de deurlijst of deuropening. </p>
+        Het punt bevindt zich altijd in het midden van de deurlijst of deuropening. </p>
     <p>De <span class="code">hoek</span> en <span class="code">deur</span> hints dienen als synchronisatie punten
         om drifts op te vangen.</p>
 </div>
-<div class="title">Startpunt</div>
-<img alt="startpunt" src="ant.png">
-<div class="title">Instructies</div>
+<div class="title2">Startpunt</div>
+<img class="startpunt" alt="startpunt" src="startpunt.png">
+<div class="title2">Instructies</div>
 <div class="instructions">
     <ol>
         <li>(x=442,y=15) deur</li>
@@ -74,13 +101,14 @@
         <li>(x=10,y=-30)</li>
         <li>(x=-16,y=-45)</li>
         <li>(x=-278)</li>
-        <li>(y=45) hoek<li>
+        <li>(y=45) hoek</li>
         <li>(z=250) hoek</li>
         <li>(y=-375)</li>
         <li>(x=60) hoek</li>
         <li>(z=30) hoek</li>
-        <li>(y=120)<li>
+        <li>(y=120)</li>
     </ol>
 </div>
+<div class="end"></div>
 </body>
 </html>
