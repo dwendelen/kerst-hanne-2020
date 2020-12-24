@@ -1,50 +1,61 @@
 <html>
-    <head>
-        <title></title>
-        <style>
-            body {
-                text-align: center;
-                font-size: 48pt;
-            }
-            input {
-                vertical-align: center;
-                font-size: 48pt;
-            }
-            select {
-                vertical-align: center;
-                font-size: 48pt;
-            }
-            form {
-                margin-top: 300px;
-            }
-        </style>
-        <script type="text/javascript" src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-    </head>
-    <body>
-        <form id="form" method="get">
-            <label for="i_dob" id="l_dob">Geboortedatum:</label><br>
-            <input id="i_dob" type="text" size="10" name="dob" placeholder="jjjj-mm-dd"><br><br>
-            <label for="s_jn">Verdien je wel een kerstcadeau?</label><br>
-            <select id="s_jn">
-                <option value="-1"></option>
-                <option value="1">Ja</option>
-                <option value="0">Nee</option>
-            </select><br><br>
-            <input id="submit" type="submit" value="Verder">
-        </form>
-        <script type="application/javascript">
-            $("#submit").click(() => {
-                let val = $("#s_jn").val();
-                if(val === "-1") {
-                    alert("Verdien je wel een kerstcadeau?");
-                    return false;
-                } else if(val === "0") {
-                    alert("Je verdient geen kerstcadeau!")
-                    return false;
-                } else {
-                    return true;
-                }
-            });
-        </script>
-    </body>
+<head>
+    <title></title>
+    <style>
+        body {
+            text-align: center;
+            font-size: 48pt;
+        }
+
+        input {
+            vertical-align: center;
+            font-size: 48pt;
+        }
+
+        select {
+            vertical-align: center;
+            font-size: 48pt;
+        }
+
+        form {
+            margin-top: 300px;
+        }
+
+        p {
+            font-size: 16pt;
+        }
+    </style>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+</head>
+<body>
+<form id="form" method="get">
+    <label for="i_dob" id="l_dob">Geboortedatum:</label><br>
+    <input id="i_dob" type="text" size="10" name="dob" placeholder="jjjj-mm-dd"><br><br>
+    <label for="s_jn">Verdien je wel een kerstcadeau?</label><br>
+    <select id="s_jn">
+        <option value="-1"></option>
+        <option value="1">Ja</option>
+        <option value="0">Nee</option>
+    </select><br><br>
+    <input id="submit" type="submit" value="Verder">
+</form>
+<p>
+    Door op "Verder" te klikken accepteer je de cookies die voor technische redenen nodig zijn.
+    De cookies worden niet gebruikt om je te tracken, daar is een andere methode voor.
+</p>
+<script type="application/javascript">
+    $("#submit").click(() => {
+        let val = $("#s_jn").val();
+        if (val === "-1") {
+            alert("Verdien je wel een kerstcadeau?");
+            return false;
+        } else if (val === "0") {
+            alert("Je verdient geen kerstcadeau!")
+            return false;
+        } else {
+            return true;
+        }
+    });
+</script>
+</body>
 </html>
